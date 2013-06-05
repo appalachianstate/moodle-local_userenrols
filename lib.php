@@ -129,6 +129,10 @@
          * Member vars
          */
 
+        /**
+         * @access private
+         * @staticvar array
+         */
         private static $user_id_field_options    = null;
 
 
@@ -140,6 +144,8 @@
         /**
          * Return a url for this plugin's interfaces
          *
+         * @access public
+         * @static
          * @param  int          $courseid        Optional id for course
          * @return moodle_url
          */
@@ -158,6 +164,8 @@
         /**
          * Return list of valid options for user record field matching
          *
+         * @access public
+         * @static
          * @return array
          */
         public static function get_user_id_field_options()
@@ -181,6 +189,8 @@
          * Make a role assignment in the specified course using the specified role
          * id for the user whose id information is passed in the line data.
          *
+         * @access public
+         * @static
          * @param stdClass      $course           Course in which to make the role assignment
          * @param stdClass      $enrol_instance   Enrol instance to use for adding users to course
          * @param string        $id_field         The field (column) name in Moodle user rec against which to query using the imported data
@@ -381,6 +391,8 @@
         /**
          * Assign people to groups based on their metacourse enrollments
          *
+         * @access public
+         * @static
          * @param stdClass $course            The course in which group assignments are made
          * @param array    $group_selections  Assoc. array ($enrol_id => $group_id)
          * @param boolean  $remove_current    Remove users' current group assignments
@@ -428,8 +440,76 @@
 
             } // foreach($group_selections...
 
+            self::set_group_prefs($course->id, $group_selections);
 
         } // metagroup_assign
+
+
+
+        /**
+         * Fetch meta course group selections
+         *
+         * @access public
+         * @static
+         * @param int      $course_id         The course in which group assignments are made
+         * @return array
+         *
+         * @uses $DB
+         */
+        public static function get_group_prefs($course_id)
+        {
+            global $DB;
+
+
+
+            $record_object = $DB->get_record('local_userenrols_metagroup', array('course' => $course_id), 'course, data');
+            if (false === $record_object) {
+
+                self::set_group_prefs($course_id);
+                return array();
+
+            } else {
+
+                return (array)unserialize($record_object->data);
+
+            }
+
+        } // get_group_prefs
+
+
+
+        /**
+         * Fetch meta course group selections
+         *
+         * @access public
+         * @static
+         * @param int      $course_id         The course in which group assignments are made
+         * @param array    $prefs             Array of prefs, group id values keyed by enrol id
+         * @return void
+         *
+         * @uses $DB
+         */
+        public static function set_group_prefs($course_id, $prefs = array())
+        {
+            global $DB;
+
+
+            try {
+
+                $DB->delete_records('local_userenrols_metagroup', array('course' => $course_id));
+
+                $record_object = new stdClass();
+                $record_object->course = $course_id;
+                $record_object->data   = serialize((array)$prefs);
+
+                $DB->insert_record('local_userenrols_metagroup', $record_object, false);
+
+            }
+            catch (Exception $exc) {
+                // Squelch the exception
+            }
+
+        } // get_group_prefs
 
 
     } // class

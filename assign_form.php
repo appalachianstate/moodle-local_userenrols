@@ -52,10 +52,9 @@
 
             $this->_form->addElement('header', 'general', get_string('general', 'form'));
             $this->_form->addElement('selectyesno', local_userenrols_plugin::FORMID_REMOVE_CURRENT, get_string('LBL_REMOVE_CURRENT', local_userenrols_plugin::PLUGIN_NAME));
-            $this->_form->setDefault(local_userenrols_plugin::FORMID_REMOVE_CURRENT, '0');
+            $this->_form->setDefault(local_userenrols_plugin::FORMID_REMOVE_CURRENT, '1');
             $this->_form->addHelpButton(local_userenrols_plugin::FORMID_REMOVE_CURRENT, 'LBL_REMOVE_CURRENT', local_userenrols_plugin::PLUGIN_NAME);
 
-          //$select_list = array('' => 'No assignments', '0' => 'placeholder');
             $select_list = array('0' => 'No assignments');
             foreach ($this->_customdata['data']->groups as $group) {
                 $select_list["$group->id"] = $group->name;
@@ -65,9 +64,18 @@
 
                 $this->_form->addElement('header', "metagroup_{$enrol->id}", get_string('LBL_ASSIGN_COURSE', local_userenrols_plugin::PLUGIN_NAME, $enrol->name));
                 $element_id = local_userenrols_plugin::FORMID_METAGROUP . "[$enrol->id]";
-              //$select_list['0'] = "Group-$enrol->name";
                 $this->_form->addElement('select', $element_id, get_string('LBL_ASSIGN_TO', local_userenrols_plugin::PLUGIN_NAME), $select_list);
-                $this->_form->setDefault($element_id, '0');
+
+                // For this enrol id determine if there is a previous
+                // group id selection, and if still valid, use it as
+                // the default
+                if (   array_key_exists($enrol->id, $this->_customdata['data']->group_prefs)
+                    && array_key_exists($this->_customdata['data']->group_prefs[$enrol->id], $select_list)) {
+                    $this->_form->setDefault($element_id, $this->_customdata['data']->group_prefs[$enrol->id]);
+                } else {
+                    $this->_form->setDefault($element_id, '0');
+                }
+
                 $this->_form->addHelpButton($element_id, 'LBL_ASSIGN_TO', local_userenrols_plugin::PLUGIN_NAME);
 
             }

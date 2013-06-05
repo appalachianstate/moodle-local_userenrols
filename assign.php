@@ -90,6 +90,7 @@
     $data->context          = $PAGE->context;
     $data->meta_enrols      = $meta_enrols;
     $data->groups           = groups_get_all_groups($course_id);
+    $data->group_prefs      = local_userenrols_plugin::get_group_prefs($COURSE->id);
 
     $formdata = null;
     $mform    = new local_userenrols_assign_form(local_userenrols_plugin::get_plugin_url('assign', $COURSE->id)->out(), array('data' => $data));
