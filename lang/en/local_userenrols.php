@@ -54,7 +54,7 @@
     $string['LBL_USER_ID_FIELD']        = 'User field:';
     $string['LBL_USER_ID_FIELD_help']   = 'Specify field in the user record is represented in the first column of the import file.';
     $string['LBL_GROUP']                = 'Assign to groups:';
-    $string['LBL_GROUP_help']           = 'Make groups assignments, either based on file input, or a selected group. This option is disabled if the course\'s "Group mode" setting is "No groups".';
+    $string['LBL_GROUP_help']           = 'Make groups assignments, either based on file input, or a selected group.';
     $string['LBL_GROUP_ID']             = 'Use group:';
     $string['LBL_GROUP_ID_help']        = 'Choose to use the group name in input file, if supplied, or select an existing group and ignore the input data.';
     $string['LBL_GROUP_CREATE']         = 'Create groups:';

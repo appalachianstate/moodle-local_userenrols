@@ -52,9 +52,6 @@
             $metacourse = $this->_customdata['data']->metacourse;
             $this->_form->addElement('hidden', local_userenrols_plugin::FORMID_METACOURSE, $metacourse ? '1' : '0');
 
-            $groupmode  = $this->_customdata['data']->course->groupmode;
-            $this->_form->addElement('hidden', local_userenrols_plugin::FORMID_GROUPMODE,  $groupmode  ? '1' : '0');
-
             if ($metacourse) {
                 $this->_form->addElement('warning', null, null, get_string('INF_METACOURSE_WARN', local_userenrols_plugin::PLUGIN_NAME));
             }
@@ -87,7 +84,6 @@
             $this->_form->addElement('selectyesno', local_userenrols_plugin::FORMID_GROUP, get_string('LBL_GROUP', local_userenrols_plugin::PLUGIN_NAME));
             $this->_form->setDefault(local_userenrols_plugin::FORMID_GROUP, 0);
             $this->_form->addHelpButton(local_userenrols_plugin::FORMID_GROUP, 'LBL_GROUP', local_userenrols_plugin::PLUGIN_NAME);
-            $this->_form->disabledIf(local_userenrols_plugin::FORMID_GROUP, local_userenrols_plugin::FORMID_GROUPMODE, 'eq', '0');
 
             // Group id selection
             $groups = array(0 => get_string('LBL_NO_GROUP_ID', local_userenrols_plugin::PLUGIN_NAME));
