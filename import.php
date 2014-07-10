@@ -138,8 +138,7 @@
         $user_id_field     = $formdata->{local_userenrols_plugin::FORMID_USER_ID_FIELD};
         $role_id           = $data->metacourse ? 0
                            : intval($formdata->{local_userenrols_plugin::FORMID_ROLE_ID});
-        $group_assign      = $COURSE->groupmode == 0 ? 0
-                           : intval($formdata->{local_userenrols_plugin::FORMID_GROUP});
+        $group_assign      = intval($formdata->{local_userenrols_plugin::FORMID_GROUP});
         $group_id          = intval($formdata->{local_userenrols_plugin::FORMID_GROUP_ID});
         $group_create      = intval($formdata->{local_userenrols_plugin::FORMID_GROUP_CREATE});
 

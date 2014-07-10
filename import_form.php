@@ -51,6 +51,7 @@
 
             $metacourse = $this->_customdata['data']->metacourse;
             $this->_form->addElement('hidden', local_userenrols_plugin::FORMID_METACOURSE, $metacourse ? '1' : '0');
+            $this->_form->setType(local_userenrols_plugin::FORMID_METACOURSE, PARAM_INT);
 
             if ($metacourse) {
                 $this->_form->addElement('warning', null, null, get_string('INF_METACOURSE_WARN', local_userenrols_plugin::PLUGIN_NAME));
