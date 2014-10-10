@@ -193,7 +193,7 @@
          * @static
          * @param stdClass      $course           Course in which to make the role assignment
          * @param stdClass      $enrol_instance   Enrol instance to use for adding users to course
-         * @param string        $id_field         The field (column) name in Moodle user rec against which to query using the imported data
+         * @param string        $ident_field      The field (column) name in Moodle user rec against which to query using the imported data
          * @param int           $role_id          Id of the role to use in the role assignment
          * @param boolean       $group_assign     Whether or not to assign users to groups
          * @param int           $group_id         Id of group to assign to, 0 indicates use group name from import file
@@ -203,7 +203,7 @@
          *
          * @uses $DB
          */
-        public static function import_file(stdClass $course, stdClass $enrol_instance, $id_field, $role_id, $group_assign, $group_id, $group_create, stored_file $import_file)
+        public static function import_file(stdClass $course, stdClass $enrol_instance, $ident_field, $role_id, $group_assign, $group_id, $group_create, stored_file $import_file)
         {
             global $DB;
 
@@ -215,8 +215,8 @@
             // Need one of these in the loop
             $course_context = context_course::instance($course->id);
 
-            // Choose the regex pattern based on the $id_field
-            switch($id_field)
+            // Choose the regex pattern based on the $ident_field
+            switch($ident_field)
             {
                 case 'email':
                     $regex_pattern = '/^"?\s*([a-z0-9][\w.%-]*@[a-z0-9][a-z0-9.-]{0,61}[a-z0-9]\.[a-z]{2,6})\s*"?(?:\s*[;,\t]\s*"?\s*([a-z0-9][\w\' .,&-]*))?\s*"?$/Ui';
@@ -230,7 +230,7 @@
             }
 
             // If doing group assignments, want to know the valid
-            // courses for the course
+            // groups for the course
             $selected_group = null;
             if ($group_assign) {
 
@@ -287,13 +287,17 @@
                     continue;
                 }
 
-                $user_id_value  = $matches[1];
+                $ident_value    = $matches[1];
                 $group_name     = isset($matches[2]) ? $matches[2] : '';
 
                 // User must already exist, we import enrollments
                 // into courses, not users into the system
-                if (false === ($user_rec = $DB->get_record('user', array($id_field => addslashes($user_id_value))))) {
-                    $result .= sprintf(get_string('ERR_USERID_INVALID', self::PLUGIN_NAME), $line_num, $user_id_value);
+                if (false === ($user_rec = $DB->get_record('user', array($ident_field => addslashes($ident_value))))) {
+                    $result .= sprintf(get_string('ERR_USERID_INVALID', self::PLUGIN_NAME), $line_num, $ident_value);
+                    continue;
+                }
+                if ($user_rec->deleted) {
+                    $result .= sprintf(get_string('ERR_USER_DELETED', self::PLUGIN_NAME), $line_num, $ident_value);
                     continue;
                 }
 
@@ -304,13 +308,13 @@
                 // should go ahead and add one, as long as it is not a metacourse.
                 if (!$roles && $role_id > 0) {
                     if ($metacourse) {
-                        $result .= sprintf(get_string('ERR_ENROLL_META', self::PLUGIN_NAME), $line_num, $user_id_value);
+                        $result .= sprintf(get_string('ERR_ENROLL_META', self::PLUGIN_NAME), $line_num, $ident_value);
                     } else {
                         try {
                             $manual_enrol_plugin->enrol_user($enrol_instance, $user_rec->id, $role_id);
                         }
                         catch (Exception $exc) {
-                            $result .= sprintf(get_string('ERR_ENROLL_FAILED', self::PLUGIN_NAME), $line_num, $user_id_value);
+                            $result .= sprintf(get_string('ERR_ENROLL_FAILED', self::PLUGIN_NAME), $line_num, $ident_value);
                             $result .= $exc->getMessage();
                             continue;
                         }
@@ -372,7 +376,7 @@
                 // Put the user in the group if not aleady in it
                 if (   !groups_is_member($assign_group_id, $user_rec->id)
                     && !groups_add_member($assign_group_id, $user_rec->id)) {
-                    $result .= sprintf(get_string('ERR_GROUP_MEMBER', self::PLUGIN_NAME), $line_num, $user_id_value, $assign_group_name);
+                    $result .= sprintf(get_string('ERR_GROUP_MEMBER', self::PLUGIN_NAME), $line_num, $ident_value, $assign_group_name);
                     continue;
                 }
 

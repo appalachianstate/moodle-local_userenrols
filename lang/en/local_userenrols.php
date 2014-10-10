@@ -52,7 +52,7 @@
     $string['LBL_ROLE_ID_help']         = 'What role do you want the imported users to have in the course. If \'No Enrollment\' then only group assignments will be made.';
     $string['LBL_FILE_help']            = 'Upload or pick from a repository a delimited data file with user and optional group information. File should have either a .txt or .csv extension.';
     $string['LBL_USER_ID_FIELD']        = 'User field:';
-    $string['LBL_USER_ID_FIELD_help']   = 'Specify field in the user record is represented in the first column of the import file.';
+    $string['LBL_USER_ID_FIELD_help']   = 'Specify which field in the user record is represented in the first column of the import file.';
     $string['LBL_GROUP']                = 'Assign to groups:';
     $string['LBL_GROUP_help']           = 'Make groups assignments, either based on file input, or a selected group.';
     $string['LBL_GROUP_ID']             = 'Use group:';
@@ -81,11 +81,12 @@
     $string['ERR_NO_META_ENROL']        = "Course must have 'Course meta link' enrol plugin enabled.";
     $string['ERR_PATTERN_MATCH']        = "Line %u: Unable to parse the line contents '%s'\n";
     $string['ERR_INVALID_GROUP_ID']     = "The group id %u is invalid for this course.\n";
-    $string['ERR_USERID_INVALID']       = "Line %u: Invalid userid value '%s'\n";
+    $string['ERR_USERID_INVALID']       = "Line %u: Invalid user ident value '%s'\n";
     $string['ERR_ENROLL_FAILED']        = "Line %u: Unable to create role assignment for userid '%s'\n";
     $string['ERR_ENROLL_META']          = "Line %u: No existing enrollment in metacourse for userid '%s'\n";
     $string['ERR_CREATE_GROUP']         = "Line %u: Unable to create group '%s'\n";
     $string['ERR_GROUP_MEMBER']         = "Line %u: Unable to add user '%s' to group '%s'\n";
+    $string['ERR_USER_DELETED']         = "Line %u: User found for '%s' marked deleted\n";
 
     $string['HELP_PAGE_IMPORT']         = 'Import Enrollments & Group Assignments';
     $string['HELP_PAGE_IMPORT_help']    = '
