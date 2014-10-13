@@ -291,15 +291,27 @@
                 $group_name     = isset($matches[2]) ? $matches[2] : '';
 
                 // User must already exist, we import enrollments
-                // into courses, not users into the system
-                if (false === ($user_rec = $DB->get_record('user', array($ident_field => addslashes($ident_value))))) {
+                // into courses, not users into the system. Exclude
+                // records marked as deleted. Because idnumber is
+                // not enforced unique, possible multiple records
+                // returned when using that identifying field, so
+                // use ->get_records method to make that detection
+                // and inform user
+                $user_rec_array = $DB->get_records('user', array($ident_field => addslashes($ident_value), 'deleted' => 0));
+                // Should have one and only one record, otherwise
+                // report it and move on to the next
+                $user_rec_count = count($user_rec_array);
+                if ($user_rec_count == 0) {
+                    // No record found
                     $result .= sprintf(get_string('ERR_USERID_INVALID', self::PLUGIN_NAME), $line_num, $ident_value);
                     continue;
-                }
-                if ($user_rec->deleted) {
-                    $result .= sprintf(get_string('ERR_USER_DELETED', self::PLUGIN_NAME), $line_num, $ident_value);
+                } elseif ($user_rec_count > 1) {
+                    // Too many records
+                    $result .= sprintf(get_string('ERR_USER_MULTIPLE_RECS', self::PLUGIN_NAME), $line_num, $ident_value);
                     continue;
                 }
+
+                $user_rec = array_shift($user_rec_array);
 
                 // Fetch all the role assignments this user might have for this course's context
                 $roles = get_user_roles($course_context, $user_rec->id, false);

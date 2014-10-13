@@ -86,7 +86,7 @@
     $string['ERR_ENROLL_META']          = "Line %u: No existing enrollment in metacourse for userid '%s'\n";
     $string['ERR_CREATE_GROUP']         = "Line %u: Unable to create group '%s'\n";
     $string['ERR_GROUP_MEMBER']         = "Line %u: Unable to add user '%s' to group '%s'\n";
-    $string['ERR_USER_DELETED']         = "Line %u: User found for '%s' marked deleted\n";
+    $string['ERR_USER_MULTIPLE_RECS']   = "Line %u: User ident value '%s' not unique. Multiple records found\n";
 
     $string['HELP_PAGE_IMPORT']         = 'Import Enrollments & Group Assignments';
     $string['HELP_PAGE_IMPORT_help']    = '
