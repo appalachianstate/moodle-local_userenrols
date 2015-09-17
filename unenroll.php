@@ -31,11 +31,11 @@
 
     require_once('../../config.php');
     require_once('./lib.php');
-    require_once('./import_form.php');
+    require_once('./unenroll_form.php');
 
 
     $config = get_config('local_userenrols');
-    if (empty($config->csvenrol)){
+    if (empty($config->csvunenrol)){
         print_error('ERR_ENABLED', local_userenrols_plugin::PLUGIN_NAME);
         die();
     }
@@ -56,12 +56,12 @@
     $course_url = new moodle_url("{$CFG->wwwroot}/course/view.php", array('id' => $COURSE->id));
     $groups_url = new moodle_url("{$CFG->wwwroot}/group/index.php", array('id' => $COURSE->id));
 
-    $page_head_title = get_string('LBL_IMPORT_TITLE', local_userenrols_plugin::PLUGIN_NAME) . ' : ' . $COURSE->shortname;
+    $page_head_title = get_string('LBL_UNENROLL_TITLE', local_userenrols_plugin::PLUGIN_NAME) . ' : ' . $COURSE->shortname;
 
     $PAGE->set_title($page_head_title);
     $PAGE->set_heading($page_head_title);
     $PAGE->set_pagelayout('incourse');
-    $PAGE->set_url(local_userenrols_plugin::get_plugin_url('import', $COURSE->id));
+    $PAGE->set_url(local_userenrols_plugin::get_plugin_url('unenroll', $COURSE->id));
     $PAGE->set_cacheable(false);
 
     // Fix up the form. Have not determined yet whether this is a
@@ -109,7 +109,7 @@
         'maxbytes'       => local_userenrols_plugin::MAXFILESIZE);
 
     $formdata = null;
-    $mform    = new local_userenrols_index_form(local_userenrols_plugin::get_plugin_url('import', $COURSE->id)->out(), array('data' => $data, 'options' => $file_picker_options));
+    $mform    = new local_userenrols_index_form(local_userenrols_plugin::get_plugin_url('unenroll', $COURSE->id)->out(), array('data' => $data, 'options' => $file_picker_options));
 
     if ($mform->is_cancelled()) {
 
@@ -124,7 +124,7 @@
         // GET request, or POST request where data did not
         // pass validation, either case display the form
         echo $OUTPUT->header();
-        echo $OUTPUT->heading_with_help(get_string('LBL_IMPORT_TITLE', local_userenrols_plugin::PLUGIN_NAME), 'HELP_PAGE_IMPORT', local_userenrols_plugin::PLUGIN_NAME);
+        echo $OUTPUT->heading_with_help(get_string('LBL_UNENROLL_TITLE', local_userenrols_plugin::PLUGIN_NAME), 'HELP_PAGE_UNENROLL', local_userenrols_plugin::PLUGIN_NAME);
 
         // Display the form with a filepicker
         echo $OUTPUT->container_start();
@@ -141,22 +141,17 @@
 
         // Collect the input
         $user_id_field     = $formdata->{local_userenrols_plugin::FORMID_USER_ID_FIELD};
-        $role_id           = $data->metacourse ? 0
-                           : intval($formdata->{local_userenrols_plugin::FORMID_ROLE_ID});
-        $group_assign      = intval($formdata->{local_userenrols_plugin::FORMID_GROUP});
-        $group_id          = intval($formdata->{local_userenrols_plugin::FORMID_GROUP_ID});
-        $group_create      = intval($formdata->{local_userenrols_plugin::FORMID_GROUP_CREATE});
 
         // Leave the file in the user's draft area since we
         // will not plan to keep it after processing
         $area_files = get_file_storage()->get_area_files($user_context->id, 'user', 'draft', $formdata->{local_userenrols_plugin::FORMID_FILES}, null, false);
-        $result = local_userenrols_plugin::import_file($COURSE, $manual_enrol_instance, $user_id_field, $role_id, (boolean)$group_assign, $group_id, (boolean)$group_create, array_shift($area_files));
+        $result = local_userenrols_plugin::unenroll_file($COURSE, $manual_enrol_instance, $user_id_field, array_shift($area_files));
 
         // Clean up the file area
         get_file_storage()->delete_area_files($user_context->id, 'user', 'draft', $formdata->{local_userenrols_plugin::FORMID_FILES});
 
         echo $OUTPUT->header();
-        echo $OUTPUT->heading_with_help(get_string('LBL_IMPORT_TITLE', local_userenrols_plugin::PLUGIN_NAME), 'HELP_PAGE_IMPORT', local_userenrols_plugin::PLUGIN_NAME);
+        echo $OUTPUT->heading_with_help(get_string('LBL_UNENROLL_TITLE', local_userenrols_plugin::PLUGIN_NAME), 'HELP_PAGE_UNENROLL', local_userenrols_plugin::PLUGIN_NAME);
 
         // Output the processing result
         echo $OUTPUT->box(nl2br($result));

@@ -34,6 +34,11 @@
     require_once('./assign_form.php');
 
 
+    $config = get_config('local_userenrols');
+    if (empty($config->metaassign)){
+        print_error('ERR_ENABLED', local_userenrols_plugin::PLUGIN_NAME);
+        die();
+    }
 
     // Fetch the course id from query string
     $course_id = required_param(local_userenrols_plugin::PARAM_COURSE_ID, PARAM_INT);

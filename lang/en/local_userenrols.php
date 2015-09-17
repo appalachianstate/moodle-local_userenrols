@@ -36,11 +36,18 @@
 
     $string['IMPORT_MENU_LONG']         = 'Import Enrolls';
     $string['IMPORT_MENU_SHORT']        = 'Import';
+    $string['ENABLE_IMPORT_MENU']       = 'Enable Import Enrolls';
+
+    $string['UNENROLL_MENU_LONG']       = 'Import Unenrolls';
+    $string['UNENROLL_MENU_SHORT']      = 'Unenroll';
+    $string['ENABLE_UNENROLL_MENU']     = 'Enable Import Unenrolls';
 
     $string['ASSIGN_MENU_LONG']         = 'Group by Meta';
     $string['ASSIGN_MENU_SHORT']        = 'Group Meta';
+    $string['ENABLE_ASSIGN_MENU']       = 'Enable Group by Meta';
 
     $string['LBL_IMPORT_TITLE']         = 'Import CSV Enrollment File';
+    $string['LBL_UNENROLL_TITLE']       = 'Import CSV Unenrollment File';
     $string['LBL_ASSIGN_TITLE']         = 'Group Assignment by Metacourse';
 
     $string['LBL_IMPORT']               = 'Import';
@@ -74,16 +81,21 @@
     $string['VAL_INVALID_FORM_DATA']    = 'Invalid form data submission.';
 
     $string['INF_METACOURSE_WARN']      = '<b>WARNING</b>: You can not import enrollments directly into a metacourse. Instead, make enrollments into one of its child courses.<br /><br />';
+    $string['INF_META_UNENROLL_WARN']   = '<b>WARNING</b>: You can not remove enrollments that are from meta linked courses. Instead, remove enrollments from the child courses.<br /><br />'; 
     $string['INF_IMPORT_SUCCESS']       = 'User enrollment import successful';
+    $string['INF_UNENROLL_SUCCESS']     = 'User unenrollment import successful';
     $string['INF_ASSIGN_SUCCESS']       = 'Group assignment successful';
 
     $string['ERR_NO_MANUAL_ENROL']      = "Course must have Manual enrol plugin enabled.";
     $string['ERR_NO_META_ENROL']        = "Course must have 'Course meta link' enrol plugin enabled.";
+    $string['ERR_ENABLED']              = "Site must have this plugin enabled before you can use it.";
     $string['ERR_PATTERN_MATCH']        = "Line %u: Unable to parse the line contents '%s'\n";
     $string['ERR_INVALID_GROUP_ID']     = "The group id %u is invalid for this course.\n";
     $string['ERR_USERID_INVALID']       = "Line %u: Invalid user ident value '%s'\n";
     $string['ERR_ENROLL_FAILED']        = "Line %u: Unable to create role assignment for userid '%s'\n";
+    $string['ERR_UNENROLL_FAILED']      = "Line %u: Unable to remove role assignment for userid '%s'\n";
     $string['ERR_ENROLL_META']          = "Line %u: No existing enrollment in metacourse for userid '%s'\n";
+    $string['ERR_UNENROLL_META']        = "Line %u: Existing enrollment is from a meta linked course for userid '%s'\n";
     $string['ERR_CREATE_GROUP']         = "Line %u: Unable to create group '%s'\n";
     $string['ERR_GROUP_MEMBER']         = "Line %u: Unable to add user '%s' to group '%s'\n";
     $string['ERR_USER_MULTIPLE_RECS']   = "Line %u: User ident value '%s' not unique. Multiple records found\n";
@@ -100,7 +112,7 @@ added to that group if it exists. You can optionally create new groups if needed
 </p>
 
 <ul>
-  <li>Each line of the import file represents a signle record</li>
+  <li>Each line of the import file represents a single record</li>
   <li>Each record should at least contain one field with a userid value, whether it be a username, an e-mail address, or an internal idnumber.</li>
   <li>Each record may contain an additional group name field, separated by a comma, semi-colon, or tab character.</li>
   <li>The role to which these users are assigned can be selected, but should default to the course\'s default role.</li>
@@ -148,3 +160,40 @@ Use this metacourse group assignment tool to assign users from individual child
 courses into separate groups. You can optionally remove any other current group
 assignments users might have.
 </p>';
+
+
+    $string['HELP_PAGE_UNENROLL']         = 'Import Unenrollments';
+    $string['HELP_PAGE_UNENROLL_help']    = '
+<p>
+Use this course import plugin to unenroll user enrollments from a delimited text
+file into the course. 
+
+<ul>
+  <li>Each line of the import file represents a single record</li>
+  <li>Each record should at least contain one field with a userid value, whether it be a username, an e-mail address, or an internal idnumber.</li>
+  <li>Blank lines in the import file will be skipped</li>
+  <li>Note: If a user is not enrolled in the course, no changes will be made to that user\'s enrollment (i.e. no role change).</li>
+</ul>
+
+<h3>Examples</h3>
+
+Internal idnumber value and group
+<pre>
+2144323548
+2144323623
+2144323647
+2144323638
+</pre>
+
+E-mail addresses
+<pre>
+smith-john@university.edu
+janedoe@university.edu
+alan.jones@university.edu
+</pre>
+
+Usernames (separated from group field with a tab character)
+<pre>
+johnsonf
+samsel
+</pre>';
