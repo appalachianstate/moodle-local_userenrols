@@ -36,12 +36,15 @@
 
     $string['IMPORT_MENU_LONG']         = 'Import Enrolls';
     $string['IMPORT_MENU_SHORT']        = 'Import';
+    $string['ENABLE_IMPORT_MENU']       = 'Enable Import Enrolls';
 
-    $string['UNENROLL_MENU_LONG']         = 'Import Unenrolls';
-    $string['UNENROLL_MENU_SHORT']        = 'Unenroll';
+    $string['UNENROLL_MENU_LONG']       = 'Import Unenrolls';
+    $string['UNENROLL_MENU_SHORT']      = 'Unenroll';
+    $string['ENABLE_UNENROLL_MENU']     = 'Enable Import Unenrolls';
 
     $string['ASSIGN_MENU_LONG']         = 'Group by Meta';
     $string['ASSIGN_MENU_SHORT']        = 'Group Meta';
+    $string['ENABLE_ASSIGN_MENU']       = 'Enable Group by Meta';
 
     $string['LBL_IMPORT_TITLE']         = 'Import CSV Enrollment File';
     $string['LBL_UNENROLL_TITLE']       = 'Import CSV Unenrollment File';
@@ -85,6 +88,7 @@
 
     $string['ERR_NO_MANUAL_ENROL']      = "Course must have Manual enrol plugin enabled.";
     $string['ERR_NO_META_ENROL']        = "Course must have 'Course meta link' enrol plugin enabled.";
+    $string['ERR_ENABLED']              = "Site must have this plugin enabled before you can use it.";
     $string['ERR_PATTERN_MATCH']        = "Line %u: Unable to parse the line contents '%s'\n";
     $string['ERR_INVALID_GROUP_ID']     = "The group id %u is invalid for this course.\n";
     $string['ERR_USERID_INVALID']       = "Line %u: Invalid user ident value '%s'\n";

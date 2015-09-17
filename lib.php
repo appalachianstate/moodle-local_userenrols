@@ -75,26 +75,34 @@
         }
 
         // Add our links
-        $useradmin_node->add(
-            get_string('IMPORT_MENU_LONG', local_userenrols_plugin::PLUGIN_NAME),
-            local_userenrols_plugin::get_plugin_url('import', $context->instanceid),
-            navigation_node::TYPE_SETTING,
-            get_string('IMPORT_MENU_SHORT', local_userenrols_plugin::PLUGIN_NAME),
-            null, new pix_icon('i/import', 'import'));
         
-        $useradmin_node->add(
-            get_string('UNENROLL_MENU_LONG', local_userenrols_plugin::PLUGIN_NAME),
-            local_userenrols_plugin::get_plugin_url('unenroll', $context->instanceid),
-            navigation_node::TYPE_SETTING,
-            get_string('UNENROLL_MENU_SHORT', local_userenrols_plugin::PLUGIN_NAME),
-            null, new pix_icon('i/export', 'export'));
+        $config = get_config('local_userenrols');
+        if (!empty($config->csvenrol)){
+            $useradmin_node->add(
+                get_string('IMPORT_MENU_LONG', local_userenrols_plugin::PLUGIN_NAME),
+                local_userenrols_plugin::get_plugin_url('import', $context->instanceid),
+                navigation_node::TYPE_SETTING,
+                get_string('IMPORT_MENU_SHORT', local_userenrols_plugin::PLUGIN_NAME),
+                null, new pix_icon('i/import', 'import'));            
+        }
+        
+        if (!empty($config->csvunenrol)){       
+            $useradmin_node->add(
+                get_string('UNENROLL_MENU_LONG', local_userenrols_plugin::PLUGIN_NAME),
+                local_userenrols_plugin::get_plugin_url('unenroll', $context->instanceid),
+                navigation_node::TYPE_SETTING,
+                get_string('UNENROLL_MENU_SHORT', local_userenrols_plugin::PLUGIN_NAME),
+                null, new pix_icon('i/export', 'export'));
+        }
 
-        $useradmin_node->add(
-            get_string('ASSIGN_MENU_LONG', local_userenrols_plugin::PLUGIN_NAME),
-            local_userenrols_plugin::get_plugin_url('assign', $context->instanceid),
-            navigation_node::TYPE_SETTING,
-            get_string('ASSIGN_MENU_SHORT', local_userenrols_plugin::PLUGIN_NAME),
-            null, new pix_icon('t/move', 'assign'));
+        if (!empty($config->metaassign)){ 
+            $useradmin_node->add(
+                get_string('ASSIGN_MENU_LONG', local_userenrols_plugin::PLUGIN_NAME),
+                local_userenrols_plugin::get_plugin_url('assign', $context->instanceid),
+                navigation_node::TYPE_SETTING,
+                get_string('ASSIGN_MENU_SHORT', local_userenrols_plugin::PLUGIN_NAME),
+                null, new pix_icon('t/move', 'assign'));
+        }
 
     }
 

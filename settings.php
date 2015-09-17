@@ -27,16 +27,22 @@
      * @license     GNU General Public License version 3
      * @package     local
      * @subpackage  userenrols
-     */
+    */
 
-    defined('MOODLE_INTERNAL') || die();
+defined('MOODLE_INTERNAL') || die;
 
+if ($hassiteconfig) {
 
-    $plugin             = new stdClass();
+    $settings = new admin_settingpage('local_userenrols', get_string('pluginname', 'local_userenrols'));
+    $ADMIN->add('localplugins', $settings);
+        
+    $settings->add(new admin_setting_configcheckbox('local_userenrols/csvenrol',
+        get_string('IMPORT_MENU_LONG', 'local_userenrols'), get_string('ENABLE_IMPORT_MENU', 'local_userenrols'), 1));
 
-    $plugin->version    = 2013052005;
-    $plugin->requires   = 2012062500;
-    $plugin->release    = "0.0.4";
-    $plugin->component = 'local_userenrols';
-    $plugin->cron       = 0;
-    $plugin->maturity   = MATURITY_STABLE;
+    $settings->add(new admin_setting_configcheckbox('local_userenrols/csvunenrol',
+        get_string('UNENROLL_MENU_LONG', 'local_userenrols'), get_string('ENABLE_UNENROLL_MENU', 'local_userenrols'), 1));
+
+    $settings->add(new admin_setting_configcheckbox('local_userenrols/metaassign',
+        get_string('ASSIGN_MENU_LONG', 'local_userenrols'), get_string('ENABLE_ASSIGN_MENU', 'local_userenrols'), 1));
+
+}
