@@ -72,22 +72,6 @@
     $data->default_role_id  = 0;
 
     // Iterate the list of active enrol plugins looking for
-    // the manual course plugin, deal breaker if not found
-    $manual_enrol_instance = null;
-    $enrols_enabled = enrol_get_instances($COURSE->id, true);
-    foreach($enrols_enabled as $enrol) {
-        if ($enrol->enrol == 'manual') {
-            $manual_enrol_instance = $enrol;
-            $data->default_role_id = $enrol->roleid;
-            break;
-        }
-    }
-    // Deal breaker
-    if (null == $manual_enrol_instance) {
-        print_error('ERR_NO_MANUAL_ENROL', local_userenrols_plugin::PLUGIN_NAME, $course_url);
-    }
-
-    // Iterate the list of active enrol plugins looking for
     // the meta course plugin
     reset($enrols_enabled);
     foreach($enrols_enabled as $enrol) {
@@ -140,7 +124,7 @@
         // Leave the file in the user's draft area since we
         // will not plan to keep it after processing
         $area_files = get_file_storage()->get_area_files($user_context->id, 'user', 'draft', $formdata->{local_userenrols_plugin::FORMID_FILES}, null, false);
-        $result = local_userenrols_plugin::unenroll_file($COURSE, $manual_enrol_instance, $user_id_field, array_shift($area_files));
+        $result = local_userenrols_plugin::unenroll_file($COURSE, $user_id_field, array_shift($area_files));
 
         // Clean up the file area
         get_file_storage()->delete_area_files($user_context->id, 'user', 'draft', $formdata->{local_userenrols_plugin::FORMID_FILES});
