@@ -416,15 +416,14 @@
          *
          * @access public
          * @static
-         * @param stdClass      $course           Course in which to make the role assignment
-         * @param stdClass      $enrol_instance   Enrol instance to use for adding users to course
+         * @param stdClass      $course           Course in which to remove the role assignment
          * @param string        $ident_field      The field (column) name in Moodle user rec against which to query using the imported data
          * @param stored_file   $import_file      File in local repository from which to get enrollment and group data
          * @return string                         String message with results
          *
          * @uses $DB
          */
-        public static function unenroll_file(stdClass $course, stdClass $enrol_instance, $ident_field, stored_file $import_file)
+        public static function unenroll_file(stdClass $course, $ident_field, stored_file $import_file)
         {
             global $DB;
 
@@ -449,10 +448,6 @@
                     $regex_pattern = '/^"?\s*([a-z0-9][\w@.-]*)\s*"?(?:\s*[;,\t]\s*"?\s*([a-z0-9][\w\' .,&-]*))?\s*"?$/Ui';
                     break;
             }
-
-            // Get an instance of the enrol_manual_plugin (not to be confused
-            // with the enrol_instance arg)
-            $manual_enrol_plugin = enrol_get_plugin('manual');
 
             $user_rec     = null;
 
@@ -500,25 +495,45 @@
 
                 $user_rec = array_shift($user_rec_array);
 
-                // Fetch all the role assignments this user might have for this course's context
-                $roles = get_user_roles($course_context, $user_rec->id, false);
-                // If a user does not have a role in this course, then we leave it alone. If they have a role, then we
-                // should go ahead and remove it, as long as it is not a metacourse.
-                if ($roles) {
-                    foreach ($roles as $role) {
-                        if($role->component == "enrol_meta"){
+                // Fetch all the role assignments this user might have for this course's context.
+                $sql = 'SELECT ue.id, ue.status, ue.enrolid
+                        FROM {user_enrolments} ue
+                        JOIN {enrol} e
+                            ON e.id = ue.enrolid
+                            AND
+                            e.courseid=:courseid
+                        WHERE
+                            ue.userid=:userid';
+                $params = array("courseid" => $course->id, "userid" => $user_rec->id);
+                $user_enrollments = $DB->get_records_sql($sql,$params);
+
+                if ($user_enrollments) {
+                    foreach ($user_enrollments as $ue) {
+                        $instance = $DB->get_record('enrol', array('id' => $ue->enrolid), '*', MUST_EXIST);
+                        if ($instance->enrol == "meta") {
                             $result .= sprintf(get_string('ERR_UNENROLL_META', self::PLUGIN_NAME), $line_num, $ident_value);
-                        }else{
+                        } else {
                             try {
-                                $manual_enrol_plugin->unenrol_user($enrol_instance, $user_rec->id, $role->roleid);
+                                if (!enrol_is_enabled($instance->enrol)) {
+                                    print_error('erroreditenrolment', 'enrol');
+                                }
+
+                                $plugin = enrol_get_plugin($instance->enrol);
+
+                                if (!$plugin->allow_unenrol_user($instance, $ue) ||
+                                    !has_capability("enrol/$instance->enrol:unenrol", $course_context)) {
+                                    print_error('erroreditenrolment', 'enrol');
+                                }
+
+                                $plugin->unenrol_user($instance, $user_rec->id);
                             }
                             catch (Exception $exc) {
                                 $result .= sprintf(get_string('ERR_UNENROLL_FAILED', self::PLUGIN_NAME), $line_num, $ident_value);
                                 $result .= $exc->getMessage();
                                 continue;
-                            }                               
+                            }
                         }
-                    }
+                    }    
                 }
             } // while fgets
 
