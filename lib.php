@@ -56,7 +56,7 @@
      * @param course_context      $context
      * @return void
      */
-    function local_userenrols_extends_settings_navigation(settings_navigation $navigation, $context)
+    function local_userenrols_extend_settings_navigation(settings_navigation $navigation, $context)
     {
 
         // If not in a course context, then leave
