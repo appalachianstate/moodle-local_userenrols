@@ -81,6 +81,13 @@
             navigation_node::TYPE_SETTING,
             get_string('IMPORT_MENU_SHORT', local_userenrols_plugin::PLUGIN_NAME),
             null, new pix_icon('i/import', 'import'));
+        
+        $useradmin_node->add(
+            get_string('UNENROLL_MENU_LONG', local_userenrols_plugin::PLUGIN_NAME),
+            local_userenrols_plugin::get_plugin_url('unenroll', $context->instanceid),
+            navigation_node::TYPE_SETTING,
+            get_string('UNENROLL_MENU_SHORT', local_userenrols_plugin::PLUGIN_NAME),
+            null, new pix_icon('i/export', 'export'));
 
         $useradmin_node->add(
             get_string('ASSIGN_MENU_LONG', local_userenrols_plugin::PLUGIN_NAME),
@@ -402,6 +409,139 @@
 
         } // import_file
 
+
+        /**
+         * Remove all role assignments in the specified course for the specified account
+         * id for the user whose id information is passed in the line data.
+         *
+         * @access public
+         * @static
+         * @param stdClass      $course           Course in which to remove the role assignment
+         * @param string        $ident_field      The field (column) name in Moodle user rec against which to query using the imported data
+         * @param stored_file   $import_file      File in local repository from which to get enrollment and group data
+         * @return string                         String message with results
+         *
+         * @uses $DB
+         */
+        public static function unenroll_file(stdClass $course, $ident_field, stored_file $import_file)
+        {
+            global $DB;
+
+
+
+            // Default return value
+            $result = '';
+
+            // Need one of these in the loop
+            $course_context = context_course::instance($course->id);
+
+            // Choose the regex pattern based on the $ident_field
+            switch($ident_field)
+            {
+                case 'email':
+                    $regex_pattern = '/^"?\s*([a-z0-9][\w.%-]*@[a-z0-9][a-z0-9.-]{0,61}[a-z0-9]\.[a-z]{2,6})\s*"?(?:\s*[;,\t]\s*"?\s*([a-z0-9][\w\' .,&-]*))?\s*"?$/Ui';
+                    break;
+                case 'idnumber':
+                    $regex_pattern = '/^"?\s*(\d{1,32})\s*"?(?:\s*[;,\t]\s*"?\s*([a-z0-9][\w\' .,&-]*))?\s*"?$/Ui';
+                    break;
+                default:
+                    $regex_pattern = '/^"?\s*([a-z0-9][\w@.-]*)\s*"?(?:\s*[;,\t]\s*"?\s*([a-z0-9][\w\' .,&-]*))?\s*"?$/Ui';
+                    break;
+            }
+
+            $user_rec     = null;
+
+            // Open and fetch the file contents
+            $fh = $import_file->get_content_file_handle();
+            $line_num = 0;
+            while (false !== ($line = fgets($fh))) {
+                $line_num++;
+
+                // Clean these up for each iteration
+                unset($user_rec);
+
+                if (!($line = trim($line))) continue;
+
+                // Parse the line, from which we may get one or two
+                // matches since the group name is an optional item
+                // on a line by line basis
+                if (!preg_match($regex_pattern, $line, $matches)) {
+                    $result .= sprintf(get_string('ERR_PATTERN_MATCH', self::PLUGIN_NAME), $line_num, $line);
+                    continue;
+                }
+
+                $ident_value    = $matches[1];
+
+                // User must already exist, we import enrollments
+                // into courses, not users into the system. Exclude
+                // records marked as deleted. Because idnumber is
+                // not enforced unique, possible multiple records
+                // returned when using that identifying field, so
+                // use ->get_records method to make that detection
+                // and inform user
+                $user_rec_array = $DB->get_records('user', array($ident_field => addslashes($ident_value), 'deleted' => 0));
+                // Should have one and only one record, otherwise
+                // report it and move on to the next
+                $user_rec_count = count($user_rec_array);
+                if ($user_rec_count == 0) {
+                    // No record found
+                    $result .= sprintf(get_string('ERR_USERID_INVALID', self::PLUGIN_NAME), $line_num, $ident_value);
+                    continue;
+                } elseif ($user_rec_count > 1) {
+                    // Too many records
+                    $result .= sprintf(get_string('ERR_USER_MULTIPLE_RECS', self::PLUGIN_NAME), $line_num, $ident_value);
+                    continue;
+                }
+
+                $user_rec = array_shift($user_rec_array);
+
+                // Fetch all the role assignments this user might have for this course's context.
+                $sql = 'SELECT ue.id, ue.status, ue.enrolid
+                        FROM {user_enrolments} ue
+                        JOIN {enrol} e
+                            ON e.id = ue.enrolid
+                            AND
+                            e.courseid=:courseid
+                        WHERE
+                            ue.userid=:userid';
+                $params = array("courseid" => $course->id, "userid" => $user_rec->id);
+                $user_enrollments = $DB->get_records_sql($sql,$params);
+
+                if ($user_enrollments) {
+                    foreach ($user_enrollments as $ue) {
+                        $instance = $DB->get_record('enrol', array('id' => $ue->enrolid), '*', MUST_EXIST);
+                        if ($instance->enrol == "meta") {
+                            $result .= sprintf(get_string('ERR_UNENROLL_META', self::PLUGIN_NAME), $line_num, $ident_value);
+                        } else {
+                            try {
+                                if (!enrol_is_enabled($instance->enrol)) {
+                                    print_error('erroreditenrolment', 'enrol');
+                                }
+
+                                $plugin = enrol_get_plugin($instance->enrol);
+
+                                if (!$plugin->allow_unenrol_user($instance, $ue) ||
+                                    !has_capability("enrol/$instance->enrol:unenrol", $course_context)) {
+                                    print_error('erroreditenrolment', 'enrol');
+                                }
+
+                                $plugin->unenrol_user($instance, $user_rec->id);
+                            }
+                            catch (Exception $exc) {
+                                $result .= sprintf(get_string('ERR_UNENROLL_FAILED', self::PLUGIN_NAME), $line_num, $ident_value);
+                                $result .= $exc->getMessage();
+                                continue;
+                            }
+                        }
+                    }    
+                }
+            } // while fgets
+
+            fclose($fh);
+
+            return (empty($result)) ? get_string('INF_UNENROLL_SUCCESS', self::PLUGIN_NAME) : $result;
+
+        } // unenroll_file
 
 
         /**
