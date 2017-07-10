@@ -1,5 +1,4 @@
 <?php
-
     // This file is part of Moodle - http://moodle.org/
     //
     // Moodle is free software: you can redistribute it and/or modify
@@ -25,28 +24,17 @@
      * @author      Fred Woolard <woolardfa@appstate.edu>
      * @copyright   (c) 2013 Appalachian State Universtiy, Boone, NC
      * @license     GNU General Public License version 3
-     * @package     local
-     * @subpackage  userenrols
+     * @package     local_userenrols
      */
 
     defined('MOODLE_INTERNAL') || die();
 
-    require_once("$CFG->dirroot/lib/accesslib.php");
-    require_once("$CFG->dirroot/lib/enrollib.php");
-    require_once("$CFG->dirroot/lib/grouplib.php");
-    require_once("$CFG->dirroot/lib/navigationlib.php");
-    require_once("$CFG->dirroot/group/lib.php");
+    require_once("{$CFG->dirroot}/lib/accesslib.php");
+    require_once("{$CFG->dirroot}/lib/enrollib.php");
+    require_once("{$CFG->dirroot}/lib/grouplib.php");
+    require_once("{$CFG->dirroot}/lib/navigationlib.php");
+    require_once("{$CFG->dirroot}/group/lib.php");
 
-
-    /**
-     * Hook to insert a link in global navigation menu block
-     * @param global_navigation $navigation
-     */
-    /*
-    function local_userenrols_extends_navigation(global_navigation $navigation)
-    {
-    }
-    */
 
 
     /**
@@ -58,6 +46,8 @@
      */
     function local_userenrols_extend_settings_navigation(settings_navigation $navigation, $context)
     {
+        global $CFG;
+
 
         // If not in a course context, then leave
         if ($context == null || $context->contextlevel != CONTEXT_COURSE) {
@@ -74,27 +64,21 @@
             return;
         }
 
-        // Add our links
+        // Add our link
         $useradmin_node->add(
             get_string('IMPORT_MENU_LONG', local_userenrols_plugin::PLUGIN_NAME),
-            local_userenrols_plugin::get_plugin_url('import', $context->instanceid),
+            new moodle_url("{$CFG->wwwroot}/local/userenrols/import.php", array('id' => $context->instanceid)),
             navigation_node::TYPE_SETTING,
             get_string('IMPORT_MENU_SHORT', local_userenrols_plugin::PLUGIN_NAME),
             null, new pix_icon('i/import', 'import'));
-
-        /*
-        $useradmin_node->add(
-            get_string('ASSIGN_MENU_LONG', local_userenrols_plugin::PLUGIN_NAME),
-            local_userenrols_plugin::get_plugin_url('assign', $context->instanceid),
-            navigation_node::TYPE_SETTING,
-            get_string('ASSIGN_MENU_SHORT', local_userenrols_plugin::PLUGIN_NAME),
-            null, new pix_icon('t/move', 'assign'));
-        */
 
     }
 
 
 
+    /**
+     * The local plugin class
+     */
     class local_userenrols_plugin
     {
 
@@ -102,27 +86,59 @@
          * Class constants
          */
 
+        /**
+         * @const string    Reduce chance of typos.
+         */
         const PLUGIN_NAME                 = 'local_userenrols';
-        const PLUGIN_PATH                 = 'local/userenrols';
+
+        /**
+         * @const string    Where we put the uploaded files.
+         */
         const PLUGIN_FILEAREA             = 'uploads';
 
-        const REQUIRED_CAP                = 'moodle/course:managegroups';
-
-        const PARAM_COURSE_ID             = 'id';
-
+        /**
+         * @const int       Max size of upload file.
+         */
         const MAXFILESIZE                 = 51200;
 
+        /**
+         * @const string    Form id for role_id.
+         */
         const FORMID_ROLE_ID              = 'role_id';
-        const FORMID_USER_ID_FIELD        = 'user_id';
-        const FORMID_GROUP                = 'group';
-        const FORMID_GROUP_ID             = 'group_id';
-        const FORMID_GROUP_CREATE         = 'group_create';
-        const FORMID_FILES                = 'filepicker';
-        const FORMID_METACOURSE           = 'metacourse';
-        const FORMID_GROUPMODE            = 'groupmode';
-        const FORMID_METAGROUP            = 'metagroup';
-        const FORMID_REMOVE_CURRENT       = 'remove';
 
+        /**
+         * @const string    Form id for user_id (key field to match).
+         */
+        const FORMID_USER_ID_FIELD        = 'user_id';
+
+        /**
+         * @const string    Form id for group (whether to assign or not).
+         */
+        const FORMID_GROUP                = 'group';
+
+        /**
+         * @const string    Form id for group_id (direct assignment).
+         */
+        const FORMID_GROUP_ID             = 'group_id';
+
+        /**
+         * @const string    Form id for group_create (if specified group missing).
+         */
+        const FORMID_GROUP_CREATE         = 'group_create';
+
+        /**
+         * @const string    Form id for filepicker form element.
+         */
+        const FORMID_FILES                = 'filepicker';
+
+        /**
+         * @const string    Form id for metacourse (hidden indicator).
+         */
+        const FORMID_METACOURSE           = 'metacourse';
+
+        /**
+         * @const string    Default user_id form value (key field to match).
+         */
         const DEFAULT_USER_ID_FIELD       = 'username';
 
 
@@ -132,8 +148,7 @@
          */
 
         /**
-         * @access private
-         * @staticvar array
+         * @var array
          */
         private static $user_id_field_options    = null;
 
@@ -144,30 +159,8 @@
          */
 
         /**
-         * Return a url for this plugin's interfaces
-         *
-         * @access public
-         * @static
-         * @param  int          $courseid        Optional id for course
-         * @return moodle_url
-         */
-        public static function get_plugin_url($action, $courseid = 0)
-        {
-            global $CFG;
-
-
-
-            return new moodle_url("$CFG->wwwroot/" . self::PLUGIN_PATH . "/{$action}.php", $courseid ? array(self::PARAM_COURSE_ID => $courseid) : null);
-
-        }
-
-
-
-        /**
          * Return list of valid options for user record field matching
          *
-         * @access public
-         * @static
          * @return array
          */
         public static function get_user_id_field_options()
@@ -191,8 +184,6 @@
          * Make a role assignment in the specified course using the specified role
          * id for the user whose id information is passed in the line data.
          *
-         * @access public
-         * @static
          * @param stdClass      $course           Course in which to make the role assignment
          * @param stdClass      $enrol_instance   Enrol instance to use for adding users to course
          * @param string        $ident_field      The field (column) name in Moodle user rec against which to query using the imported data
@@ -403,131 +394,5 @@
             return (empty($result)) ? get_string('INF_IMPORT_SUCCESS', self::PLUGIN_NAME) : $result;
 
         } // import_file
-
-
-
-        /**
-         * Assign people to groups based on their metacourse enrollments
-         *
-         * @access public
-         * @static
-         * @param stdClass $course            The course in which group assignments are made
-         * @param array    $group_selections  Assoc. array ($enrol_id => $group_id)
-         * @param boolean  $remove_current    Remove users' current group assignments
-         * @return void
-         *
-         * @uses $DB
-         */
-        public static function metagroup_assign(stdClass $course, $group_selections, $remove_current = false)
-        {
-            global $DB;
-
-
-
-            $result = '';
-            $course_groups = groups_get_all_groups($course->id);
-
-            foreach($group_selections as $enrol_id => $assign_group_id) {
-
-                // No assignment select for this enrol instance
-                if (empty($assign_group_id)) {
-                    continue;
-                }
-
-                // Get users association with this enrol instance
-                if (false === ($userids = $DB->get_records('user_enrolments', array('enrolid' => $enrol_id), 'userid', 'userid'))) {
-                    continue;
-                }
-
-                // Iterate the user id list for this enrol instance
-                foreach($userids as $userid => $record_object) {
-
-                    // Remove user from existing groups if needed
-                    if ($remove_current) {
-                        foreach ($course_groups as $course_group) {
-                            if ($course_group->id != $assign_group_id) {
-                                groups_remove_member($course_group->id, $userid);
-                            }
-                        }
-                    }
-
-                    // Got an existing group's id
-                    groups_add_member($assign_group_id, $userid);
-
-                } // foreach($userids...
-
-            } // foreach($group_selections...
-
-            self::set_group_prefs($course->id, $group_selections);
-
-        } // metagroup_assign
-
-
-
-        /**
-         * Fetch meta course group selections
-         *
-         * @access public
-         * @static
-         * @param int      $course_id         The course in which group assignments are made
-         * @return array
-         *
-         * @uses $DB
-         */
-        public static function get_group_prefs($course_id)
-        {
-            global $DB;
-
-
-
-            $record_object = $DB->get_record('local_userenrols_metagroup', array('course' => $course_id), 'course, data');
-            if (false === $record_object) {
-
-                self::set_group_prefs($course_id);
-                return array();
-
-            } else {
-
-                return (array)unserialize($record_object->data);
-
-            }
-
-        } // get_group_prefs
-
-
-
-        /**
-         * Fetch meta course group selections
-         *
-         * @access public
-         * @static
-         * @param int      $course_id         The course in which group assignments are made
-         * @param array    $prefs             Array of prefs, group id values keyed by enrol id
-         * @return void
-         *
-         * @uses $DB
-         */
-        public static function set_group_prefs($course_id, $prefs = array())
-        {
-            global $DB;
-
-
-            try {
-
-                $DB->delete_records('local_userenrols_metagroup', array('course' => $course_id));
-
-                $record_object = new stdClass();
-                $record_object->course = $course_id;
-                $record_object->data   = serialize((array)$prefs);
-
-                $DB->insert_record('local_userenrols_metagroup', $record_object, false);
-
-            }
-            catch (Exception $exc) {
-                // Squelch the exception
-            }
-
-        } // get_group_prefs
-
 
     } // class

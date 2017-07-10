@@ -1,5 +1,4 @@
 <?php
-
     // This file is part of Moodle - http://moodle.org/
     //
     // Moodle is free software: you can redistribute it and/or modify
@@ -25,32 +24,27 @@
      * @author      Fred Woolard <woolardfa@appstate.edu>
      * @copyright   (c) 2013 Appalachian State Universtiy, Boone, NC
      * @license     GNU General Public License version 3
-     * @package     local
-     * @subpackage  userenrols
+     * @package     local_userenrols
      */
 
     defined('MOODLE_INTERNAL') || die();
 
 
-    $string['pluginname']               = 'Import User Enrolls & Group Assigns';
+    $string['pluginname']               = 'Import Enrollments & Groups';
 
     $string['IMPORT_MENU_LONG']         = 'Import Enrolls';
     $string['IMPORT_MENU_SHORT']        = 'Import';
 
-    $string['ASSIGN_MENU_LONG']         = 'Group by Meta';
-    $string['ASSIGN_MENU_SHORT']        = 'Group Meta';
-
     $string['LBL_IMPORT_TITLE']         = 'Import CSV Enrollment File';
-    $string['LBL_ASSIGN_TITLE']         = 'Group Assignment by Metacourse';
 
     $string['LBL_IMPORT']               = 'Import';
     $string['LBL_IDENTITY_OPTIONS']     = 'User Identity';
     $string['LBL_ENROLL_OPTIONS']       = 'Enrollment Options';
     $string['LBL_GROUP_OPTIONS']        = 'Group Options';
     $string['LBL_FILE_OPTIONS']         = 'Import File';
+    $string['LBL_FILE_OPTIONS_help']    = 'Upload or pick from a repository a delimited data file with user and optional group information. File should have either a .txt or .csv extension.';
     $string['LBL_ROLE_ID']              = 'Role:';
     $string['LBL_ROLE_ID_help']         = 'What role do you want the imported users to have in the course. If \'No Enrollment\' then only group assignments will be made.';
-    $string['LBL_FILE_help']            = 'Upload or pick from a repository a delimited data file with user and optional group information. File should have either a .txt or .csv extension.';
     $string['LBL_USER_ID_FIELD']        = 'User field:';
     $string['LBL_USER_ID_FIELD_help']   = 'Specify which field in the user record is represented in the first column of the import file.';
     $string['LBL_GROUP']                = 'Assign to groups:';
@@ -62,20 +56,12 @@
     $string['LBL_NO_ROLE_ID']           = 'No Enrollments';
     $string['LBL_NO_GROUP_ID']          = 'Use file data';
 
-    $string['LBL_ASSIGN']               = 'Assign';
-    $string['LBL_ASSIGN_TO']            = 'Assign to group:';
-    $string['LBL_ASSIGN_TO_help']       = 'Select a group to which to assign users enrolled in this metacourse.';
-    $string['LBL_ASSIGN_COURSE']        = 'Course: {$a}';
-    $string['LBL_REMOVE_CURRENT']       = 'Remove existing:';
-    $string['LBL_REMOVE_CURRENT_help']  = 'Remove any other group assignments users have.';
-
     $string['VAL_NO_FILES']             = 'No file was selected for import';
     $string['VAL_INVALID_SELECTION']    = 'Invalid selection';
     $string['VAL_INVALID_FORM_DATA']    = 'Invalid form data submission.';
 
     $string['INF_METACOURSE_WARN']      = '<b>WARNING</b>: You can not import enrollments directly into a metacourse. Instead, make enrollments into one of its child courses.<br /><br />';
     $string['INF_IMPORT_SUCCESS']       = 'User enrollment import successful';
-    $string['INF_ASSIGN_SUCCESS']       = 'Group assignment successful';
 
     $string['ERR_NO_MANUAL_ENROL']      = "Course must have Manual enrol plugin enabled.";
     $string['ERR_NO_META_ENROL']        = "Course must have 'Course meta link' enrol plugin enabled.";
@@ -139,12 +125,3 @@ Usernames (separated from group field with a tab character)
 johnsonf    "Presentation, Group One"
 samsel      Ten O\'Clock Testing
 </pre>';
-
-
-    $string['HELP_PAGE_ASSIGN']         = 'Metacourse Group Assignments';
-    $string['HELP_PAGE_ASSIGN_help']    = '
-<p>
-Use this metacourse group assignment tool to assign users from individual child
-courses into separate groups. You can optionally remove any other current group
-assignments users might have.
-</p>';

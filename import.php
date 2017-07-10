@@ -1,5 +1,4 @@
 <?php
-
     // This file is part of Moodle - http://moodle.org/
     //
     // Moodle is free software: you can redistribute it and/or modify
@@ -25,38 +24,40 @@
      * @author      Fred Woolard <woolardfa@appstate.edu>
      * @copyright   (c) 2013 Appalachian State Universtiy, Boone, NC
      * @license     GNU General Public License version 3
-     * @package     local
-     * @subpackage  userenrols
+     * @package     local_userenrols
      */
 
-    require_once('../../config.php');
-    require_once('./lib.php');
-    require_once('./import_form.php');
+    require_once(__DIR__ . '/../../config.php');
+    require_once(__DIR__ . '/lib.php');
+    require_once(__DIR__ . '/import_form.php');
 
 
 
     // Fetch the course id from query string
-    $course_id = required_param(local_userenrols_plugin::PARAM_COURSE_ID, PARAM_INT);
+    $course_id = required_param('id', PARAM_INT);
 
     // No anonymous access for this page, and this will
     // handle bogus course id values as well
     require_login($course_id);
     // $PAGE, $USER, $COURSE, and other globals now set
     // up, check the capabilities
-    require_capability(local_userenrols_plugin::REQUIRED_CAP, $PAGE->context);
+    require_capability('enrol/manual:enrol', $PAGE->context);
+    // Determine if they can manage groups
+    $canmanagegroups = has_capability('moodle/course:managegroups', $PAGE->context);
 
     $user_context = context_user::instance($USER->id);
 
     // Want this for subsequent print_error() calls
     $course_url = new moodle_url("{$CFG->wwwroot}/course/view.php", array('id' => $COURSE->id));
     $groups_url = new moodle_url("{$CFG->wwwroot}/group/index.php", array('id' => $COURSE->id));
+    $enrol_url  = new moodle_url("{$CFG->wwwroot}/enrol/users.php", array('id' => $COURSE->id));
 
     $page_head_title = get_string('LBL_IMPORT_TITLE', local_userenrols_plugin::PLUGIN_NAME) . ' : ' . $COURSE->shortname;
 
     $PAGE->set_title($page_head_title);
     $PAGE->set_heading($page_head_title);
     $PAGE->set_pagelayout('incourse');
-    $PAGE->set_url(local_userenrols_plugin::get_plugin_url('import', $COURSE->id));
+    $PAGE->set_url(new moodle_url("{$CFG->wwwroot}/local/userenrols/import.php", array('id' => $COURSE->id)));
     $PAGE->set_cacheable(false);
 
     // Fix up the form. Have not determined yet whether this is a
@@ -70,6 +71,7 @@
                             = local_userenrols_plugin::get_user_id_field_options();
     $data->metacourse       = false;
     $data->default_role_id  = 0;
+    $data->canmanagegroups  = $canmanagegroups;
 
     // Iterate the list of active enrol plugins looking for
     // the manual course plugin, deal breaker if not found
@@ -104,7 +106,7 @@
         'maxbytes'       => local_userenrols_plugin::MAXFILESIZE);
 
     $formdata = null;
-    $mform    = new local_userenrols_index_form(local_userenrols_plugin::get_plugin_url('import', $COURSE->id)->out(), array('data' => $data, 'options' => $file_picker_options));
+    $mform    = new local_userenrols_index_form($PAGE->url->out(), array('data' => $data, 'options' => $file_picker_options));
 
     if ($mform->is_cancelled()) {
 
@@ -135,17 +137,24 @@
         require_sesskey();
 
         // Collect the input
-        $user_id_field     = $formdata->{local_userenrols_plugin::FORMID_USER_ID_FIELD};
-        $role_id           = $data->metacourse ? 0
-                           : intval($formdata->{local_userenrols_plugin::FORMID_ROLE_ID});
-        $group_assign      = intval($formdata->{local_userenrols_plugin::FORMID_GROUP});
-        $group_id          = intval($formdata->{local_userenrols_plugin::FORMID_GROUP_ID});
-        $group_create      = intval($formdata->{local_userenrols_plugin::FORMID_GROUP_CREATE});
+        $user_id_field  = empty($formdata->{local_userenrols_plugin::FORMID_USER_ID_FIELD})
+                        ? '' : $formdata->{local_userenrols_plugin::FORMID_USER_ID_FIELD};
+        $role_id        = $data->metacourse
+                        ? 0 : (empty($formdata->{local_userenrols_plugin::FORMID_ROLE_ID})
+                               ? 0 : intval($formdata->{local_userenrols_plugin::FORMID_ROLE_ID}));
+        $group_assign   = empty($formdata->{local_userenrols_plugin::FORMID_GROUP})
+                        ? 0 : intval($formdata->{local_userenrols_plugin::FORMID_GROUP});
+        $group_id       = empty($formdata->{local_userenrols_plugin::FORMID_GROUP_ID})
+                        ? 0 : intval($formdata->{local_userenrols_plugin::FORMID_GROUP_ID});
+        $group_create   = empty($formdata->{local_userenrols_plugin::FORMID_GROUP_CREATE})
+                        ? 0 : intval($formdata->{local_userenrols_plugin::FORMID_GROUP_CREATE});
 
         // Leave the file in the user's draft area since we
         // will not plan to keep it after processing
         $area_files = get_file_storage()->get_area_files($user_context->id, 'user', 'draft', $formdata->{local_userenrols_plugin::FORMID_FILES}, null, false);
-        $result = local_userenrols_plugin::import_file($COURSE, $manual_enrol_instance, $user_id_field, $role_id, (boolean)$group_assign, $group_id, (boolean)$group_create, array_shift($area_files));
+        $result = local_userenrols_plugin::import_file($COURSE, $manual_enrol_instance,
+            $user_id_field, $role_id, $canmanagegroups ? (boolean)$group_assign : false,
+            $group_id, (boolean)$group_create, array_shift($area_files));
 
         // Clean up the file area
         get_file_storage()->delete_area_files($user_context->id, 'user', 'draft', $formdata->{local_userenrols_plugin::FORMID_FILES});
@@ -155,7 +164,7 @@
 
         // Output the processing result
         echo $OUTPUT->box(nl2br($result));
-        echo $OUTPUT->continue_button($groups_url);
+        echo $OUTPUT->continue_button($canmanagegroups && $group_assign ? $groups_url : $enrol_url);
 
         echo $OUTPUT->footer();
 

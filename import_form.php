@@ -1,5 +1,4 @@
 <?php
-
     // This file is part of Moodle - http://moodle.org/
     //
     // Moodle is free software: you can redistribute it and/or modify
@@ -25,8 +24,7 @@
      * @author      Fred Woolard <woolardfa@appstate.edu>
      * @copyright   (c) 2013 Appalachian State Universtiy, Boone, NC
      * @license     GNU General Public License version 3
-     * @package     local
-     * @subpackage  userenrols
+     * @package     local_userenrols
      */
 
     require_once($CFG->libdir.'/formslib.php');
@@ -41,7 +39,7 @@
 
         /**
          * Define the form's contents
-         *
+         * @see moodleform::definition()
          */
         public function definition()
         {
@@ -80,34 +78,40 @@
             $this->_form->disabledIf(local_userenrols_plugin::FORMID_ROLE_ID, local_userenrols_plugin::FORMID_METACOURSE, 'eq', '1');
 
 
-            $this->_form->addElement('header', 'identity', get_string('LBL_GROUP_OPTIONS', local_userenrols_plugin::PLUGIN_NAME));
-            // Process groups
-            $this->_form->addElement('selectyesno', local_userenrols_plugin::FORMID_GROUP, get_string('LBL_GROUP', local_userenrols_plugin::PLUGIN_NAME));
-            $this->_form->setDefault(local_userenrols_plugin::FORMID_GROUP, 0);
-            $this->_form->addHelpButton(local_userenrols_plugin::FORMID_GROUP, 'LBL_GROUP', local_userenrols_plugin::PLUGIN_NAME);
+            // Conditionally based on user capability
+            if ($this->_customdata['data']->canmanagegroups) {
 
-            // Group id selection
-            $groups = array(0 => get_string('LBL_NO_GROUP_ID', local_userenrols_plugin::PLUGIN_NAME));
-            foreach(groups_get_all_groups($this->_customdata['data']->course->id) as $key => $group_record) {
-                $groups[$key] = $group_record->name;
+                // Process groups
+                $this->_form->addElement('header', 'identity', get_string('LBL_GROUP_OPTIONS', local_userenrols_plugin::PLUGIN_NAME));
+
+                $this->_form->addElement('selectyesno', local_userenrols_plugin::FORMID_GROUP, get_string('LBL_GROUP', local_userenrols_plugin::PLUGIN_NAME));
+                $this->_form->setDefault(local_userenrols_plugin::FORMID_GROUP, 0);
+                $this->_form->addHelpButton(local_userenrols_plugin::FORMID_GROUP, 'LBL_GROUP', local_userenrols_plugin::PLUGIN_NAME);
+
+                // Group id selection
+                $groups = array(0 => get_string('LBL_NO_GROUP_ID', local_userenrols_plugin::PLUGIN_NAME));
+                foreach(groups_get_all_groups($this->_customdata['data']->course->id) as $key => $group_record) {
+                    $groups[$key] = $group_record->name;
+                }
+                $this->_form->addElement('select', local_userenrols_plugin::FORMID_GROUP_ID, get_string('LBL_GROUP_ID', local_userenrols_plugin::PLUGIN_NAME), $groups);
+                $this->_form->setDefault(local_userenrols_plugin::FORMID_GROUP_ID, 0);
+                $this->_form->addHelpButton(local_userenrols_plugin::FORMID_GROUP_ID, 'LBL_GROUP_ID', local_userenrols_plugin::PLUGIN_NAME);
+                $this->_form->disabledIf(local_userenrols_plugin::FORMID_GROUP_ID, local_userenrols_plugin::FORMID_GROUP, 'eq', '0');
+
+                // Create new if needed
+                $this->_form->addElement('selectyesno', local_userenrols_plugin::FORMID_GROUP_CREATE, get_string('LBL_GROUP_CREATE', local_userenrols_plugin::PLUGIN_NAME));
+                $this->_form->setDefault(local_userenrols_plugin::FORMID_GROUP_CREATE, 0);
+                $this->_form->addHelpButton(local_userenrols_plugin::FORMID_GROUP_CREATE, 'LBL_GROUP_CREATE', local_userenrols_plugin::PLUGIN_NAME);
+                $this->_form->disabledIf(local_userenrols_plugin::FORMID_GROUP_CREATE, local_userenrols_plugin::FORMID_GROUP,    'eq', '0');
+                $this->_form->disabledIf(local_userenrols_plugin::FORMID_GROUP_CREATE, local_userenrols_plugin::FORMID_GROUP_ID, 'gt', '0');
+
             }
-            $this->_form->addElement('select', local_userenrols_plugin::FORMID_GROUP_ID, get_string('LBL_GROUP_ID', local_userenrols_plugin::PLUGIN_NAME), $groups);
-            $this->_form->setDefault(local_userenrols_plugin::FORMID_GROUP_ID, 0);
-            $this->_form->addHelpButton(local_userenrols_plugin::FORMID_GROUP_ID, 'LBL_GROUP_ID', local_userenrols_plugin::PLUGIN_NAME);
-            $this->_form->disabledIf(local_userenrols_plugin::FORMID_GROUP_ID, local_userenrols_plugin::FORMID_GROUP, 'eq', '0');
-
-            // Create new if needed
-            $this->_form->addElement('selectyesno', local_userenrols_plugin::FORMID_GROUP_CREATE, get_string('LBL_GROUP_CREATE', local_userenrols_plugin::PLUGIN_NAME));
-            $this->_form->setDefault(local_userenrols_plugin::FORMID_GROUP_CREATE, 0);
-            $this->_form->addHelpButton(local_userenrols_plugin::FORMID_GROUP_CREATE, 'LBL_GROUP_CREATE', local_userenrols_plugin::PLUGIN_NAME);
-            $this->_form->disabledIf(local_userenrols_plugin::FORMID_GROUP_CREATE, local_userenrols_plugin::FORMID_GROUP,    'eq', '0');
-            $this->_form->disabledIf(local_userenrols_plugin::FORMID_GROUP_CREATE, local_userenrols_plugin::FORMID_GROUP_ID, 'gt', '0');
-
-            $this->_form->addElement('header', 'identity', get_string('LBL_FILE_OPTIONS', local_userenrols_plugin::PLUGIN_NAME));
 
             // File picker
+            $this->_form->addElement('header', 'identity', get_string('LBL_FILE_OPTIONS', local_userenrols_plugin::PLUGIN_NAME));
+
             $this->_form->addElement('filepicker', local_userenrols_plugin::FORMID_FILES, null, null, $this->_customdata['options']);
-          //$this->_form->addHelpButton(local_userenrols_plugin::FORMID_FILES, 'LBL_FILE', local_userenrols_plugin::PLUGIN_NAME);
+            $this->_form->addHelpButton(local_userenrols_plugin::FORMID_FILES, 'LBL_FILE_OPTIONS', local_userenrols_plugin::PLUGIN_NAME);
             $this->_form->addRule(local_userenrols_plugin::FORMID_FILES, null, 'required', null, 'client');
 
             $this->add_action_buttons(true, get_string('LBL_IMPORT', local_userenrols_plugin::PLUGIN_NAME));
@@ -116,6 +120,10 @@
 
 
 
+        /**
+         * Validate the submitted form data
+         * @see moodleform::validation()
+         */
         public function validation($data, $files)
         {
             global $USER;
@@ -126,31 +134,44 @@
 
             // User record field to match against, has to be
             // one of three defined in the plugin's class
-            if (!array_key_exists($data[local_userenrols_plugin::FORMID_USER_ID_FIELD], local_userenrols_plugin::get_user_id_field_options())) {
+            if (   empty($data[local_userenrols_plugin::FORMID_USER_ID_FIELD])
+                || !array_key_exists($data[local_userenrols_plugin::FORMID_USER_ID_FIELD], local_userenrols_plugin::get_user_id_field_options())) {
                 $result[local_userenrols_plugin::FORMID_USER_ID_FIELD] = get_string('invaliduserfield', 'error', $data[local_userenrols_plugin::FORMID_USER_ID_FIELD]);
             }
 
             // Into which role to put the imported users, has
             // to be one valid for the current user.
-            $role_id = intval($data[local_userenrols_plugin::FORMID_ROLE_ID]);
+            $role_id = empty($data[local_userenrols_plugin::FORMID_ROLE_ID])
+                     ? 0 : intval($data[local_userenrols_plugin::FORMID_ROLE_ID]);
             if ($role_id > 0 && !array_key_exists($role_id, get_assignable_roles($this->_customdata['data']->context, ROLENAME_BOTH))) {
                 $result[local_userenrols_plugin::FORMID_ROLE_ID] = get_string('invalidroleid', 'error');
             }
 
-            // For Yes/No select 0 and 1 only, anything else not valid
-            $group_assign = intval($data[local_userenrols_plugin::FORMID_GROUP]);
+            // For Yes/No select 1 and 0 only, anything else not valid
+            $group_assign = empty($data[local_userenrols_plugin::FORMID_GROUP])
+                          ? 0 : intval($data[local_userenrols_plugin::FORMID_GROUP]);
             if ($group_assign < 0 or $group_assign > 1) {
                 $result[local_userenrols_plugin::FORMID_GROUP] = get_string('VAL_INVALID_SELECTION', local_userenrols_plugin::PLUGIN_NAME);
             }
 
-            $group_id = $group_assign ? intval($data[local_userenrols_plugin::FORMID_GROUP_ID]) : 0;
+            if ($group_assign) {
+                $group_id = empty($data[local_userenrols_plugin::FORMID_GROUP_ID])
+                          ? 0 : $group_assign ? intval($data[local_userenrols_plugin::FORMID_GROUP_ID]) : 0;
+            } else {
+                $group_id = 0;
+            }
             if ($group_id > 0 && !array_key_exists($group_id, groups_get_all_groups($this->_customdata['data']->course->id))) {
                 $group_id = 0;
                 $result[local_userenrols_plugin::FORMID_GROUP_ID] = get_string('VAL_INVALID_SELECTION', local_userenrols_plugin::PLUGIN_NAME);
             }
 
-            // For Yes/No select 0 and 1 only, anything else not valid
-            $group_create = ($group_assign && $group_id == 0) ? intval($data[local_userenrols_plugin::FORMID_GROUP_CREATE]) : 0;
+            // For Yes/No select 1 and 0 only, anything else not valid
+            if (($group_assign && ($group_id == 0))) {
+                $group_create = empty($data[local_userenrols_plugin::FORMID_GROUP_CREATE])
+                              ? 0 : $data[local_userenrols_plugin::FORMID_GROUP_CREATE];
+            } else {
+                $group_create = 0;
+            }
             if ($group_create < 0 or $group_create > 1) {
                 $result[local_userenrols_plugin::FORMID_GROUPING] = get_string('VAL_INVALID_SELECTION', local_userenrols_plugin::PLUGIN_NAME);
             }

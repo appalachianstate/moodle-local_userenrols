@@ -1,5 +1,4 @@
 <?php
-
     // This file is part of Moodle - http://moodle.org/
     //
     // Moodle is free software: you can redistribute it and/or modify
@@ -25,8 +24,7 @@
      * @author      Fred Woolard <woolardfa@appstate.edu>
      * @copyright   (c) 2013 Appalachian State Universtiy, Boone, NC
      * @license     GNU General Public License version 3
-     * @package     local
-     * @subpackage  userenrols
+     * @package     local_userenrols
      */
 
     defined('MOODLE_INTERNAL') || die();
