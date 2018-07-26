@@ -125,3 +125,8 @@ Usernames (separated from group field with a tab character)
 johnsonf    "Presentation, Group One"
 samsel      Ten O\'Clock Testing
 </pre>';
+
+/*
+ * GDPR compliant
+ */
+$string['privacy:no_data_reason'] = "The Import Enrollments & Groups plugin doesn't store any personal data.";
