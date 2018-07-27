@@ -1,3 +1,8 @@
+##### Ver. 2013052008 Release 0.0.8_30 (Build 2018072600)
+
+  * Add GDPR compliance (report no personal data stored)
+  * Branch off due to changes in 3.4
+
 ##### Ver. 2013052007 Release 0.0.7 (Build 2017070700)
 
   * Observe managegroups capability
