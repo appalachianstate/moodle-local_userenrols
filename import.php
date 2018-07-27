@@ -50,7 +50,7 @@
     // Want this for subsequent print_error() calls
     $course_url = new moodle_url("{$CFG->wwwroot}/course/view.php", array('id' => $COURSE->id));
     $groups_url = new moodle_url("{$CFG->wwwroot}/group/index.php", array('id' => $COURSE->id));
-    $enrol_url  = new moodle_url("{$CFG->wwwroot}/enrol/users.php", array('id' => $COURSE->id));
+    $enrol_url  = new moodle_url("{$CFG->wwwroot}/user/index.php",  array('id' => $COURSE->id));
 
     $page_head_title = get_string('LBL_IMPORT_TITLE', local_userenrols_plugin::PLUGIN_NAME) . ' : ' . $COURSE->shortname;
 

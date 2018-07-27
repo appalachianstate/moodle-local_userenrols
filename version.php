@@ -32,9 +32,9 @@
 
     $plugin             = new stdClass();
 
-    $plugin->version    = 2013052008;
-    $plugin->requires   = 2015051100;
-    $plugin->release    = "0.0.8 (Build 2018072600)";
+    $plugin->version    = 2018052008;
+    $plugin->requires   = 2017111300;
+    $plugin->release    = "0.0.8_34 (Build 2018072600)";
     $plugin->component  = 'local_userenrols';
     $plugin->cron       = 0;
     $plugin->maturity   = MATURITY_STABLE;
