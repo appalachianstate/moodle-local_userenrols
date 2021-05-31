@@ -1,8 +1,12 @@
-##### Ver. 2013052009 Release 0.0.9_34 (Build 20200516)
+##### Ver. 2018052009 Release 0.0.10_34 (Build 2020053100)
+
+  * Use more flexible regex for idnumber validation
+
+##### Ver. 2018052009 Release 0.0.9_34 (Build 2020051600)
 
   * Adjust regex pattern to allow brackets, braces, parentheses in group names (thanks Syxton)
 
-##### Ver. 2013052008 Release 0.0.8_34 (Build 2018072600)
+##### Ver. 2018052008 Release 0.0.8_34 (Build 2018072600)
 
   * Add GDPR compliance (report no personal data stored)
   * Fix links to enrol and group pages changed in 3.4
