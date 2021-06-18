@@ -267,7 +267,9 @@
                 // Clean these up for each iteration
                 unset($user_rec, $new_group, $new_grouping);
 
-                if (!($line = trim($line))) continue;
+                // Besides whitespace chars, also strip any utf-8
+                // BOM chars that might be at beginning of file
+                if (!($line = trim($line, " \n\r\t\v\0\xbb\xbf\xef"))) continue;
 
                 // Parse the line, from which we may get one or two
                 // matches since the group name is an optional item
