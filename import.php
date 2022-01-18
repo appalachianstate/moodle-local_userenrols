@@ -148,13 +148,15 @@
                         ? 0 : intval($formdata->{local_userenrols_plugin::FORMID_GROUP_ID});
         $group_create   = empty($formdata->{local_userenrols_plugin::FORMID_GROUP_CREATE})
                         ? 0 : intval($formdata->{local_userenrols_plugin::FORMID_GROUP_CREATE});
+        $force          = empty($formdata->{local_userenrols_plugin::FORMID_ENROLL_FORCE_CREATE})
+                        ? 0 : intval($formdata->{local_userenrols_plugin::FORMID_ENROLL_FORCE_CREATE});
 
         // Leave the file in the user's draft area since we
         // will not plan to keep it after processing
         $area_files = get_file_storage()->get_area_files($user_context->id, 'user', 'draft', $formdata->{local_userenrols_plugin::FORMID_FILES}, null, false);
         $result = local_userenrols_plugin::import_file($COURSE, $manual_enrol_instance,
             $user_id_field, $role_id, $canmanagegroups ? (boolean)$group_assign : false,
-            $group_id, (boolean)$group_create, array_shift($area_files));
+            $group_id, (boolean)$group_create, array_shift($area_files), (boolean)$force);
 
         // Clean up the file area
         get_file_storage()->delete_area_files($user_context->id, 'user', 'draft', $formdata->{local_userenrols_plugin::FORMID_FILES});
