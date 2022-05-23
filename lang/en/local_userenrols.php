@@ -54,6 +54,7 @@
     $string['LBL_GROUP_CREATE']         = 'Create groups:';
     $string['LBL_GROUP_CREATE_help']    = 'If groups in import file do not exist, create new ones as needed, otherwise only assign users to groups if the group name specified already exists.';
     $string['LBL_NO_ROLE_ID']           = 'No Enrollments';
+    $string['LBL_UNENROL_ID']           = 'Unenrol Users';
     $string['LBL_NO_GROUP_ID']          = 'Use file data';
 
     $string['VAL_NO_FILES']             = 'No file was selected for import';

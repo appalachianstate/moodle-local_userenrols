@@ -72,6 +72,9 @@
             // gaps, so have to merge manually with the 0 option.
             $roles = HTML_QuickForm::arrayMerge(array(0 => get_string('LBL_NO_ROLE_ID', local_userenrols_plugin::PLUGIN_NAME)),
                                                 get_assignable_roles($this->_customdata['data']->context, ROLENAME_BOTH));
+            if (has_capability("enrol/manual:unenrol", $this->_customdata['data']->context)) {
+                $roles = HTML_QuickForm::arrayMerge(array(-1 => get_string('LBL_UNENROL_ID', local_userenrols_plugin::PLUGIN_NAME)), $roles);
+            }
             $this->_form->addElement('select', local_userenrols_plugin::FORMID_ROLE_ID, get_string('LBL_ROLE_ID', local_userenrols_plugin::PLUGIN_NAME), $roles);
             $this->_form->setDefault(local_userenrols_plugin::FORMID_ROLE_ID, $this->_customdata['data']->default_role_id);
             $this->_form->addHelpButton(local_userenrols_plugin::FORMID_ROLE_ID, 'LBL_ROLE_ID', local_userenrols_plugin::PLUGIN_NAME);

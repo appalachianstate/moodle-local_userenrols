@@ -135,6 +135,7 @@
          * @const string    Form id for metacourse (hidden indicator).
          */
         const FORMID_METACOURSE           = 'metacourse';
+        const FORMID_REMOVE_CURRENT       = 'remove';
 
         /**
          * @const string    Default user_id form value (key field to match).
@@ -322,6 +323,18 @@
                             $result .= $exc->getMessage();
                             continue;
                         }
+                    }
+                }
+
+                // If they have picked the unenrol option, unenrol accordingly.
+                if ($roles && $role_id < 0) {
+                    try {
+                        $manual_enrol_plugin->unenrol_user($enrol_instance, $user_rec->id);
+                    }
+                    catch (Exception $exc) {
+                        $result .= sprintf(get_string('ERR_ENROLL_FAILED', self::PLUGIN_NAME), $line_num, $user_id_value);
+                        $result .= $exc->getMessage();
+                        continue;
                     }
                 }
 
