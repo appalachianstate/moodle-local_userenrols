@@ -107,6 +107,11 @@
         const FORMID_ROLE_ID              = 'role_id';
 
         /**
+         * @const string    Form id for enroll_force_create.
+         */
+        const FORMID_ENROLL_FORCE_CREATE        = 'enrol_force_create';
+
+        /**
          * @const string    Form id for user_id (key field to match).
          */
         const FORMID_USER_ID_FIELD        = 'user_id';
@@ -196,7 +201,17 @@
          *
          * @uses $DB
          */
-        public static function import_file(stdClass $course, stdClass $enrol_instance, $ident_field, $role_id, $group_assign, $group_id, $group_create, stored_file $import_file)
+        public static function import_file(
+            stdClass $course,
+            stdClass $enrol_instance,
+            $ident_field,
+            $role_id,
+            $group_assign,
+            $group_id,
+            $group_create,
+            stored_file $import_file,
+            bool $forcemanualenrollment = false
+        )
         {
             global $DB;
 
@@ -310,7 +325,7 @@
                 // If a user has a role in this course, then we leave it alone and move on
                 // to the group assignment if there is one. If they have no role, then we
                 // should go ahead and add one, as long as it is not a metacourse.
-                if (!$roles && $role_id > 0) {
+                if ((!$roles && $role_id > 0) || $forcemanualenrollment) {
                     if ($metacourse) {
                         $result .= sprintf(get_string('ERR_ENROLL_META', self::PLUGIN_NAME), $line_num, $ident_value);
                     } else {

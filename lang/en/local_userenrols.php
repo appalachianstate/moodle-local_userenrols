@@ -40,6 +40,8 @@
     $string['LBL_IMPORT']               = 'Import';
     $string['LBL_IDENTITY_OPTIONS']     = 'User Identity';
     $string['LBL_ENROLL_OPTIONS']       = 'Enrollment Options';
+    $string['LBL_ENROLL_FORCE_CREATE']  = 'Force creation of new manual enrollment';
+    $string['LBL_ENROLL_FORCE_CREATE_help'] = 'If set to yes, a new manual enrollment will be created regardless of whether or not the user has an existing role in the course.';
     $string['LBL_GROUP_OPTIONS']        = 'Group Options';
     $string['LBL_FILE_OPTIONS']         = 'Import File';
     $string['LBL_FILE_OPTIONS_help']    = 'Upload or pick from a repository a delimited data file with user and optional group information. File should have either a .txt or .csv extension.';

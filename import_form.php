@@ -77,6 +77,10 @@
             $this->_form->addHelpButton(local_userenrols_plugin::FORMID_ROLE_ID, 'LBL_ROLE_ID', local_userenrols_plugin::PLUGIN_NAME);
             $this->_form->disabledIf(local_userenrols_plugin::FORMID_ROLE_ID, local_userenrols_plugin::FORMID_METACOURSE, 'eq', '1');
 
+            // Force new manual enrolment creation
+            $this->_form->addElement('selectyesno', local_userenrols_plugin::FORMID_ENROLL_FORCE_CREATE, get_string('LBL_ENROLL_FORCE_CREATE', local_userenrols_plugin::PLUGIN_NAME));
+            $this->_form->setDefault(local_userenrols_plugin::FORMID_ENROLL_FORCE_CREATE, 0);
+            $this->_form->addHelpButton(local_userenrols_plugin::FORMID_ENROLL_FORCE_CREATE, 'LBL_ENROLL_FORCE_CREATE', local_userenrols_plugin::PLUGIN_NAME);
 
             // Conditionally based on user capability
             if ($this->_customdata['data']->canmanagegroups) {
