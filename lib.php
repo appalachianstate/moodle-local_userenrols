@@ -209,13 +209,17 @@
             $course_context = context_course::instance($course->id);
 
             // Choose the regex pattern based on the $ident_field
+            $groupRegexPattern = '[^"]*'; //original was '[a-z0-9][\w\' .,&-\[\]\{\}\(\)]*'
             switch($ident_field)
             {
                 case 'email':
-                    $regex_pattern = '/^"?\s*([a-z0-9][\w.%-]*@[a-z0-9][a-z0-9.-]{0,61}[a-z0-9]\.[a-z]{2,6})\s*"?(?:\s*[;,\t]\s*"?\s*([a-z0-9][\w\' .,&-\[\]\{\}\(\)]*))?\s*"?$/Ui';
+                    $regex_pattern = '/^"?\s*([a-z0-9][\w.%-]*@[a-z0-9][a-z0-9.-]{0,61}[a-z0-9]\.[a-z]{2,6})\s*"?(?:\s*[;,\t]\s*"?\s*('.$groupRegexPattern.'))?\s*"?$/Uiu';
+                    break;
+                case 'idnumber':
+                    $regex_pattern = '/^"?\s*(\d{1,32})\s*"?(?:\s*[;,\t]\s*"?\s*('.$groupRegexPattern.'))?\s*"?$/Uiu';
                     break;
                 default:
-                    $regex_pattern = '/^"?\s*([a-z0-9][\w@.-]*)\s*"?(?:\s*[;,\t]\s*"?\s*([a-z0-9][\w\' .,&-\[\]\{\}\(\)]*))?\s*"?$/Ui';
+                    $regex_pattern = '/^"?\s*([a-z0-9][\w@.-]*)\s*"?(?:\s*[;,\t]\s*"?\s*('.$groupRegexPattern.'))?\s*"?$/Uiu';
                     break;
             }
 
